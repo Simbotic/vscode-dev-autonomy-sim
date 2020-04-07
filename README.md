@@ -54,6 +54,8 @@ VSCode:
 
 **Note:** If you don't want this as a Git Submodule, you may also choose to download this repository as a **zip**, extract its content, and paste it in a `.devcontainer` directory at the root of your project.
 
+![](images/devcontainer.png)
+
 ## Test using SimboticTorch
 https://github.com/Simbotic/SimboticTorch
 
