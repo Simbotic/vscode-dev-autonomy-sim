@@ -20,6 +20,20 @@ Docker (and VSCode DevContainer) for running Simbotic family of computer vision 
 
 ![](images/features.png)
 
+## Pre-requisites
+
+### Audio setup
+On host, create pulseaudio socket:
+
+```
+pactl load-module module-native-protocol-unix socket=/tmp/pulseaudio.socket
+```
+
+### NVidia setup
+
+Setup NVidia docker:
+https://github.com/NVIDIA/nvidia-docker
+
 ## Setup Docker container
 ```
 ./docker_build.sh

@@ -1,17 +1,20 @@
 {
-	"name": "rust-gstreamer-tensorflow-gpu",
+	"name": "simbotic-container",
 	"context": ".",
 	"dockerFile": "Dockerfile",
 	"runArgs": [
-		"--name", "rust-gst-tf-gpu",
+		"--name", "simbotic-container",
 		"--gpus=all",
-		"--device", "/dev/snd",
 		"--cap-add=SYS_PTRACE",
 		"--security-opt", "seccomp=unconfined",
+		"--network", "host",
 		"-e", "DISPLAY=${env:DISPLAY}",
-		"-e", "PULSE_SERVER=unix:${env:XDG_RUNTIME_DIR}/pulse/native",
+		"-e", "PULSE_SERVER=unix:/tmp/pulseaudio.socket",
+		"-e", "PULSE_COOKIE=/tmp/pulseaudio.cookie",
+		"-e", "SSH_AUTH_SOCK=/ssh-agent",
 		"-v", "/tmp/.X11-unix:/tmp/.X11-unix",
-		"-v", "${env:XDG_RUNTIME_DIR}/pulse/native:${env:XDG_RUNTIME_DIR}/pulse/native"
+		"-v", "/tmp/pulseaudio.socket:/tmp/pulseaudio.socket",
+		"-v", "${env:SSH_AUTH_SOCK}:/ssh-agent"
 	],
 	"extensions": [
 		"bungcip.better-toml",
