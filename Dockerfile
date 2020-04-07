@@ -7,6 +7,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
+RUN apt-get purge -y ".*:i386" && dpkg --remove-architecture i386
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
         mesa-utils \
         build-essential cmake \
@@ -72,7 +74,7 @@ RUN apt-get install -y --no-install-recommends libpulse-dev pulseaudio-utils
 COPY pulseaudio-client.conf /etc/pulse/client.conf
 
 # GStreamer 1.16
-RUN apt-get update && apt-get install \
+RUN apt-get update && apt-get install -y \
     gtk-doc-tools libglib2.0-dev bison flex gettext graphviz yasm \
     liborc-0.4-0 liborc-0.4-dev libvorbis-dev libcdparanoia-dev \
     libcdparanoia0 cdparanoia libvisual-0.4-0 libvisual-0.4-dev libvisual-0.4-plugins libvisual-projectm \

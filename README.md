@@ -1,17 +1,24 @@
 # Simbotic Container
 Docker (and VSCode DevContainer) for running Simbotic family of computer vision and simulation tools.
 
+![](images/test.png)
+
 ## Supports
 - SimboticEngine (UnrealEngine 4.0) and plugins
 - SimboticTorch (LibTorch GPU)
 
-## Contains
+## Features
 - Rust 1.42.0
-- GStreamer 1.14.5
-- LibTorch 1.4.0
+- GStreamer 1.16.2 (with WebRTC and Data Channels)
+- LibTorch 1.4.0 - GPU
 - CUDA 10.1
 - cuDNN 7.6.5
-- OpenCV 4.1.1
+- nvidia/cudagl:10.1-devel-ubuntu18.04
+- Inherits UID/GID from host user
+- ssh keys added to container agent
+- VSCode Remote Containers
+
+![](images/features.png)
 
 ## Setup Docker container
 ```
@@ -32,3 +39,7 @@ VSCode:
 - Run the `Remote-Containers: Reopen in Container` command or run `Remote-Containers: Open Folder in Container...` command and select the local folder
 
 **Note:** If you don't want this as a Git Submodule, you may also choose to download this repository as a **zip**, extract its content, and paste it in a `.devcontainer` directory at the root of your project.
+
+## Test using SimboticTorch
+https://github.com/Simbotic/SimboticTorch
+
