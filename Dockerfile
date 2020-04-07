@@ -1,17 +1,18 @@
 ARG UBUNTU_VERSION=18.04
 
-FROM nvidia/cudagl:10.0-devel-ubuntu${UBUNTU_VERSION} as base
-
+FROM nvidia/cudagl:10.1-devel-ubuntu${UBUNTU_VERSION} as base
 ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES},display
+
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         mesa-utils \
-        build-essential \
-        sudo \
-        cmake \
+        build-essential cmake \
+        autoconf autogen automake libtool autopoint \
+        sudo ssh \
+        tzdata \
         libgtk2.0-dev \
         libgtk-3-dev \
         libavcodec-dev \
@@ -37,78 +38,83 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libdc1394-22-dev \
         pkg-config \
         software-properties-common \
+        unzip \
+        zip \
         wget \
-        git \
+        git git-lfs \
         vim \
         curl \
         libssl-dev \
         lldb \
         procps \
         lsb-release \
-        x11-xserver-utils
+        x11-xserver-utils \
+        libmagick++-dev
 
-# CUDA 10.0
+# CUDA 10.1
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        cuda-command-line-tools-10-0 \
-        cuda-cublas-10-0 \
-        cuda-cufft-10-0 \
-        cuda-curand-10-0 \
-        cuda-cusolver-10-0 \
-        cuda-cusparse-10-0 \
-        libcudnn7=7.4.1.5-1+cuda10.0
+        cuda-command-line-tools-10-1 \
+        cuda-cufft-10-1 \
+        cuda-curand-10-1 \
+        cuda-cusolver-10-1 \
+        cuda-cusparse-10-1 \
+        libcudnn7=7.6.5.32-1+cuda10.1 \
+        libcudnn7-dev=7.6.5.32-1+cuda10.1
 
 ENV LD_LIBRARY_PATH /usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
 
-RUN apt-get install -y --no-install-recommends \
-    libgstreamer1.0-dev \
-    libgstreamer-plugins-base1.0-dev \
-    libgstreamer-plugins-good1.0-dev \
-    libgstreamer-plugins-bad1.0-dev \
-    gstreamer1.0-plugins-base \
-    gstreamer1.0-plugins-good \
-    gstreamer1.0-plugins-bad \
-    gstreamer1.0-plugins-ugly \
-    libgstrtspserver-1.0-dev \
-    libgstreamer1.0-0 \
-    gstreamer1.0-libav \
-    gstreamer1.0-doc \
-    gstreamer1.0-tools \
-    gstreamer1.0-x \
-    gstreamer1.0-alsa \
-    gstreamer1.0-gl \
-    gstreamer1.0-gtk3 \
-    gstreamer1.0-qt5 \
-    gstreamer1.0-pulseaudio \
-    gtk-doc-tools
+# Set Coordinated Universal Time
+RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
+RUN apt-get update && apt-get install -y tzdata
 
-# Remove old OpenCV
-RUN apt remove --purge -y libopencv-dev
+# Pulseaudio
+RUN apt-get install -y --no-install-recommends libpulse-dev pulseaudio-utils
+COPY pulseaudio-client.conf /etc/pulse/client.conf
 
-# Compile OpenCV 4.1.1
-RUN git clone https://github.com/opencv/opencv.git
-WORKDIR /opencv
-RUN git checkout 4.1.1
-RUN mkdir build
-WORKDIR /opencv/build
-RUN cmake \
-    -D CMAKE_BUILD_TYPE=Release \
-    -D CMAKE_INSTALL_PREFIX=/usr/local \
-    -D BUILD_EXAMPLES=OFF \
-    -D BUILD_PERF_TESTS=OFF \
-    -D BUILD_TESTS=OFF \
-    -D BUILD_DOCS=OFF \
-    -D OPENCV_GENERATE_PKGCONFIG=ON \
-    -D ENABLE_PRECOMPILED_HEADERS=OFF \
-    ..
-RUN make -j$(nproc)
-RUN make install
-RUN ldconfig
+# GStreamer 1.16
+RUN apt-get update && apt-get install \
+    gtk-doc-tools libglib2.0-dev bison flex gettext graphviz yasm \
+    liborc-0.4-0 liborc-0.4-dev libvorbis-dev libcdparanoia-dev \
+    libcdparanoia0 cdparanoia libvisual-0.4-0 libvisual-0.4-dev libvisual-0.4-plugins libvisual-projectm \
+    vorbis-tools vorbisgain libopus-dev libopus-doc libopus0 libopusfile-dev libopusfile0 \
+    libtheora-bin libtheora-dev libtheora-doc libvpx-dev libvpx-doc \
+    libflac++-dev libavc1394-dev \
+    libraw1394-dev libraw1394-tools libraw1394-doc libraw1394-tools \
+    libtag1-dev libtagc0-dev libwavpack-dev wavpack \
+    libfontconfig1-dev libfreetype6-dev \
+    libxv-dev libx11-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libx11-xcb-dev libxcb-glx0-dev \
+    libasound2-dev libavcodec-dev libavformat-dev libswscale-dev \
+    libwebrtc-audio-processing-dev \
+    libsrtp2-dev
 
-# Tensorflow 1.13.1
-RUN wget https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-gpu-linux-x86_64-1.13.1.tar.gz \
-    && tar -C /usr/local -xzf libtensorflow-gpu-linux-x86_64-1.13.1.tar.gz \
-    && ldconfig
+RUN apt-get upgrade -y && apt-get autoremove
 
+COPY nvidia-video/include/* /usr/local/cuda/include/
+
+RUN mkdir /opt/src
+WORKDIR /opt/src
+RUN git clone -b 0.1.16 --single-branch https://gitlab.freedesktop.org/libnice/libnice.git
+RUN git clone -b master --single-branch https://github.com/sctplab/usrsctp.git
+RUN git clone -b 1.16 --single-branch https://gitlab.freedesktop.org/gstreamer/gst-libav.git
+RUN git clone -b 1.16 --single-branch https://gitlab.freedesktop.org/gstreamer/gstreamer.git
+RUN git clone -b 1.16 --single-branch https://gitlab.freedesktop.org/gstreamer/gst-plugins-base.git
+RUN git clone -b 1.16 --single-branch https://gitlab.freedesktop.org/gstreamer/gst-plugins-good.git
+RUN git clone -b 1.16 --single-branch https://gitlab.freedesktop.org/gstreamer/gst-plugins-bad.git
+RUN git clone -b 1.16 --single-branch https://gitlab.freedesktop.org/gstreamer/gst-plugins-ugly.git
+COPY build_gstreamer.sh build_gstreamer.sh
+RUN chmod +x build_gstreamer.sh
+RUN ./build_gstreamer.sh
+
+# LibTorch 1.4.0
+WORKDIR /opt
+RUN wget -O libtorch_1.4.0.zip https://download.pytorch.org/libtorch/cu101/libtorch-cxx11-abi-shared-with-deps-1.4.0.zip && \
+    unzip libtorch_1.4.0.zip && \
+    rm libtorch_1.4.0.zip
+ENV LIBTORCH /opt/libtorch
+
+COPY bashrc /etc/bash.bashrc
+RUN chmod a+rwx /etc/bash.bashrc
+    
 ARG USERNAME=sim
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
@@ -127,34 +133,25 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get upgrade -y
-
 USER $USERNAME
 ENV HOME /home/$USERNAME
 WORKDIR $HOME
 
-# Latest Rust
+# Latest stable Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y
 ENV PATH=$HOME/.cargo/bin:$PATH
+RUN rustup toolchain install 1.42.0
 RUN rustup component add rls rust-analysis rust-src rustfmt clippy
-RUN cargo install ripgrep fd-find
+RUN cargo install fd-find ripgrep
 
-RUN pip install --user setuptools wheel image
-RUN pip3 install --user setuptools wheel image
+# RUN pip install --user setuptools wheel image 
+# RUN pip install --user torch torchvision
 
-RUN pip install --user tensorflow-gpu==1.13.1
-RUN pip3 install --user tensorflow-gpu==1.13.1
+# RUN pip3 install --user setuptools wheel image
+# RUN pip3 install --user torch torchvision
 
-RUN pip install --user matplotlib
-RUN pip3 install --user matplotlib
-
-USER root
-
-RUN apt-get install -y --no-install-recommends \
-    libmagick++-dev
-
-USER $USERNAME
-
+# RUN pip install --user matplotlib
+# RUN pip3 install --user matplotlib
 
 # Switch back to dialog for any ad-hoc use of apt-get
 ENV DEBIAN_FRONTEND=
