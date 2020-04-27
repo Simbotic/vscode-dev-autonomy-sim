@@ -59,3 +59,18 @@ VSCode:
 ## Test using SimboticTorch
 https://github.com/Simbotic/SimboticTorch
 
+
+## Run Simbotic Engine
+
+You must need to download, build and set `$SIMBOTIC_ENGINE` env variable to run within the container. Please refer to [Simbotic Repo](https://github.com/Simbotic/SimboticEngine) in order to set all of this.
+
+After all the variables are in place, we need to run the build script:
+
+```
+./docker_build.sh
+```
+This will create the docker image according the Dockerfile. Then, 
+
+```
+./docker_run.sh
+```

@@ -89,6 +89,19 @@ RUN apt-get update && apt-get install -y \
     libwebrtc-audio-processing-dev \
     libsrtp2-dev
 
+# Enable Vulkan support
+RUN apt-get install -y --no-install-recommends libvulkan1 && \
+	VULKAN_API_VERSION=`dpkg -s libvulkan1 | grep -oP 'Version: [0-9|\.]+' | grep -oP '[0-9|\.]+'` && \
+	mkdir -p /etc/vulkan/icd.d/ && \
+	echo \
+	"{\
+		\"file_format_version\" : \"1.0.0\",\
+		\"ICD\": {\
+			\"library_path\": \"libGLX_nvidia.so.0\",\
+			\"api_version\" : \"${VULKAN_API_VERSION}\"\
+		}\
+	}" > /etc/vulkan/icd.d/nvidia_icd.json
+
 RUN apt-get upgrade -y && apt-get autoremove
 
 COPY nvidia-video/include/* /usr/local/cuda/include/

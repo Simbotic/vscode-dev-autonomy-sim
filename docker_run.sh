@@ -8,6 +8,7 @@ docker run --rm -ti --name simbotic-container --gpus=all \
     -v /tmp/pulseaudio.socket:/tmp/pulseaudio.socket \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
     -v $SSH_AUTH_SOCK:/ssh-agent \
+    -v $SIMBOTIC_ENGINE:/opt/simbotic/SimboticEngine \
     --network=host \
     --cap-add=SYS_PTRACE \
     simbotic-container-base
