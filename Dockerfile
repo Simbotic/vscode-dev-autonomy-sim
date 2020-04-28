@@ -71,7 +71,7 @@ RUN apt-get update && apt-get install -y tzdata
 
 # Pulseaudio
 RUN apt-get install -y --no-install-recommends libpulse-dev pulseaudio-utils
-COPY pulseaudio-client.conf /etc/pulse/client.conf
+#COPY pulseaudio-client.conf /etc/pulse/client.conf
 
 # GStreamer 1.16
 RUN apt-get update && apt-get install -y \
