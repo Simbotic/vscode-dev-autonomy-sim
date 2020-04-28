@@ -6,6 +6,7 @@ ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES},display
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
+ENV TORCH_VERSION 1.5.0
 
 RUN apt-get purge -y ".*:i386" && dpkg --remove-architecture i386
 
@@ -122,9 +123,9 @@ RUN ./build_gstreamer.sh
 
 # LibTorch 1.4.0
 WORKDIR /opt
-RUN wget -O libtorch_1.4.0.zip https://download.pytorch.org/libtorch/cu101/libtorch-cxx11-abi-shared-with-deps-1.4.0.zip && \
-    unzip libtorch_1.4.0.zip && \
-    rm libtorch_1.4.0.zip
+RUN wget -O libtorch_${TORCH_VERSION}.zip https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-${TORCH_VERSION}.zip && \
+    unzip libtorch_${TORCH_VERSION}.zip && \
+    rm libtorch_${TORCH_VERSION}.zip
 ENV LIBTORCH /opt/libtorch
 
 COPY bashrc /etc/bash.bashrc
