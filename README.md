@@ -8,9 +8,9 @@ Docker (and VSCode DevContainer) for running Simbotic family of computer vision 
 - SimboticTorch (LibTorch GPU)
 
 ## Features
-- Rust 1.42.0
+- Rust 1.44.1
 - GStreamer 1.16.2 (with WebRTC and Data Channels)
-- LibTorch 1.4.0 - GPU
+- LibTorch 1.5.0 - GPU
 - CUDA 10.1
 - cuDNN 7.6.5
 - nvidia/cudagl:10.1-devel-ubuntu18.04

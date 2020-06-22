@@ -72,7 +72,7 @@ RUN apt-get update && apt-get install -y tzdata
 
 # Pulseaudio
 RUN apt-get install -y --no-install-recommends libpulse-dev pulseaudio-utils
-#COPY pulseaudio-client.conf /etc/pulse/client.conf
+COPY pulseaudio-client.conf /etc/pulse/client.conf
 
 # GStreamer 1.16
 RUN apt-get update && apt-get install -y \
@@ -121,7 +121,7 @@ COPY build_gstreamer.sh build_gstreamer.sh
 RUN chmod +x build_gstreamer.sh
 RUN ./build_gstreamer.sh
 
-# LibTorch 1.4.0
+# LibTorch TORCH_VERSION
 WORKDIR /opt
 RUN wget -O libtorch_${TORCH_VERSION}.zip https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-${TORCH_VERSION}.zip && \
     unzip libtorch_${TORCH_VERSION}.zip && \
@@ -156,18 +156,9 @@ WORKDIR $HOME
 # Latest stable Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y
 ENV PATH=$HOME/.cargo/bin:$PATH
-RUN rustup toolchain install 1.42.0
+RUN rustup toolchain install 1.44.1
 RUN rustup component add rls rust-analysis rust-src rustfmt clippy
 RUN cargo install fd-find ripgrep
-
-# RUN pip install --user setuptools wheel image 
-# RUN pip install --user torch torchvision
-
-# RUN pip3 install --user setuptools wheel image
-# RUN pip3 install --user torch torchvision
-
-# RUN pip install --user matplotlib
-# RUN pip3 install --user matplotlib
 
 # Switch back to dialog for any ad-hoc use of apt-get
 ENV DEBIAN_FRONTEND=
