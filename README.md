@@ -54,7 +54,7 @@ https://github.com/NVIDIA/nvidia-docker
 
 Move to the root directory of your project and run:
 ```
-git submodule add git@github.com:VertexStudio/SimboticContainer.git .devcontainer
+git submodule add git@github.com:Simbotic/SimboticContainer.git .devcontainer
 ```
 
 VSCode:
