@@ -1,5 +1,5 @@
 # Simbotic Container
-Docker (and VSCode DevContainer) for running Simbotic family of computer vision and simulation tools.
+Docker (and VSCode DevContainer) for running computer vision and simulation tools.
 
 ![](images/test.png)
 
@@ -8,9 +8,9 @@ Docker (and VSCode DevContainer) for running Simbotic family of computer vision 
 - SimboticTorch (LibTorch GPU)
 
 ## Features
-- Rust 1.44.1
+- Stable Rust 1.46.0
 - GStreamer 1.16.2 (with WebRTC and Data Channels)
-- LibTorch 1.5.0 - GPU
+- LibTorch 1.6.0 - GPU
 - CUDA 10.1
 - cuDNN 7.6.5
 - nvidia/cudagl:10.1-devel-ubuntu18.04
@@ -27,16 +27,6 @@ On host, create pulseaudio socket:
 
 ```
 pactl load-module module-native-protocol-unix socket=/tmp/pulseaudio.socket
-```
-Now creates a file (`/tmp/pulseaudio.client.conf`) that contains the following:
-
-```
-default-server = unix:/tmp/pulseaudio.socket
-# Prevent a server running in the container
-autospawn = no
-daemon-binary = /bin/true
-# Prevent the use of shared memory
-enable-shm = false
 ```
 
 ### NVidia setup
@@ -68,19 +58,3 @@ VSCode:
 
 ## Test using SimboticTorch
 https://github.com/Simbotic/SimboticTorch
-
-
-## Run Simbotic Engine
-
-You must need to download, build and set `$SIMBOTIC_ENGINE` env variable to run within the container. Please refer to [Simbotic Repo](https://github.com/Simbotic/SimboticEngine) in order to set all of this.
-
-After all the variables are in place, we need to run the build script:
-
-```
-./docker_build.sh
-```
-This will create the docker image according the Dockerfile. Then, 
-
-```
-./docker_run.sh
-```

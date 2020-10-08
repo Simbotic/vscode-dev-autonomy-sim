@@ -9,11 +9,11 @@
 		"--security-opt", "seccomp=unconfined",
 		"--network", "host",
 		"-e", "DISPLAY=${env:DISPLAY}",
+		"-v", "/tmp/.X11-unix:/tmp/.X11-unix",
 		"-e", "PULSE_SERVER=unix:/tmp/pulseaudio.socket",
 		"-e", "PULSE_COOKIE=/tmp/pulseaudio.cookie",
-		"-e", "SSH_AUTH_SOCK=/ssh-agent",
-		"-v", "/tmp/.X11-unix:/tmp/.X11-unix",
 		"-v", "/tmp/pulseaudio.socket:/tmp/pulseaudio.socket",
+		"-e", "SSH_AUTH_SOCK=/ssh-agent",
 		"-v", "${env:SSH_AUTH_SOCK}:/ssh-agent"
 	],
 	"extensions": [

@@ -6,7 +6,7 @@ ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES},display
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
-ENV TORCH_VERSION 1.5.0
+ENV TORCH_VERSION 1.6.0
 
 RUN apt-get purge -y ".*:i386" && dpkg --remove-architecture i386
 
@@ -156,7 +156,7 @@ WORKDIR $HOME
 # Latest stable Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y
 ENV PATH=$HOME/.cargo/bin:$PATH
-RUN rustup toolchain install 1.44.1
+RUN rustup toolchain install 1.46.0
 RUN rustup component add rls rust-analysis rust-src rustfmt clippy
 RUN cargo install fd-find ripgrep
 
