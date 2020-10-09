@@ -3,7 +3,6 @@
 	"context": ".",
 	"dockerFile": "Dockerfile",
 	"runArgs": [
-		"--name", "simbotic-container",
 		"--gpus=all",
 		"--cap-add=SYS_PTRACE",
 		"--security-opt", "seccomp=unconfined",

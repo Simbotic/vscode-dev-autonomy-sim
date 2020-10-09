@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 docker run --rm -ti \
-    --name simbotic-container \
     --gpus=all \
     --cap-add=SYS_PTRACE \
     --security-opt seccomp=unconfined \
