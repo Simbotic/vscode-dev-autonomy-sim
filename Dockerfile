@@ -66,6 +66,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 ENV LD_LIBRARY_PATH /usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
 
+# Enable Vulkan support
+RUN add-apt-repository ppa:graphics-drivers/ppa -y && apt-get install -y --no-install-recommends \
+    libvulkan1 mesa-vulkan-drivers vulkan-utils glslang-tools
+
 # Set Coordinated Universal Time
 RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 RUN apt-get update && apt-get install -y tzdata
@@ -89,19 +93,6 @@ RUN apt-get update && apt-get install -y \
     libasound2-dev libavcodec-dev libavformat-dev libswscale-dev \
     libwebrtc-audio-processing-dev \
     libsrtp2-dev
-
-# Enable Vulkan support
-RUN apt-get install -y --no-install-recommends libvulkan1 && \
-	VULKAN_API_VERSION=`dpkg -s libvulkan1 | grep -oP 'Version: [0-9|\.]+' | grep -oP '[0-9|\.]+'` && \
-	mkdir -p /etc/vulkan/icd.d/ && \
-	echo \
-	"{\
-		\"file_format_version\" : \"1.0.0\",\
-		\"ICD\": {\
-			\"library_path\": \"libGLX_nvidia.so.0\",\
-			\"api_version\" : \"${VULKAN_API_VERSION}\"\
-		}\
-	}" > /etc/vulkan/icd.d/nvidia_icd.json
 
 RUN apt-get upgrade -y && apt-get autoremove
 
