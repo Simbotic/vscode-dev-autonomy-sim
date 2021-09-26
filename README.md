@@ -8,12 +8,12 @@ Docker (and VSCode DevContainer) for running computer vision and simulation tool
 - SimboticTorch (LibTorch GPU)
 
 ## Features
-- Stable Rust 1.46.0
+- Stable Rust 1.55.0
 - GStreamer 1.16.2 (with WebRTC and Data Channels)
-- LibTorch 1.6.0 - GPU
-- CUDA 10.1
-- cuDNN 7.6.5
-- nvidia/cudagl:10.1-devel-ubuntu18.04
+- LibTorch 1.9.0 - GPU
+- CUDA 11.4
+- cuDNN 8.2.2
+- nvidia/cudagl:11.4.2-devel-ubuntu20.04
 - Inherits UID/GID from host user
 - ssh keys added to container agent
 - VSCode Remote Containers
@@ -29,10 +29,25 @@ On host, create pulseaudio socket:
 pactl load-module module-native-protocol-unix socket=/tmp/pulseaudio.socket
 ```
 
-### NVidia setup
+### NVidia Docker 2 setup
 
 Setup NVidia docker:
 https://github.com/NVIDIA/nvidia-docker
+
+Install:
+```
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+   && curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add - \
+   && curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+sudo apt-get update
+sudo apt-get install -y nvidia-docker2
+sudo systemctl restart docker
+```
+
+Test nvidia-docker installation:
+```
+docker run --rm --gpus all nvidia/cudagl:11.4.2-devel-ubuntu20.04 nvidia-smi
+```
 
 ## Setup Docker container
 ```

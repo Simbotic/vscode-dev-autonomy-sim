@@ -1,12 +1,12 @@
-ARG UBUNTU_VERSION=18.04
+ARG UBUNTU_VERSION=20.04
 
-FROM nvidia/cudagl:10.1-devel-ubuntu${UBUNTU_VERSION} as base
+FROM nvidia/cudagl:11.4.2-devel-ubuntu${UBUNTU_VERSION} as base
 ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES},display
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
-ENV TORCH_VERSION 1.6.0
+ENV TORCH_VERSION 1.9.0
 
 RUN apt-get purge -y ".*:i386" && dpkg --remove-architecture i386
 
@@ -24,13 +24,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libfreetype6-dev \
         libhdf5-serial-dev \
         libzmq3-dev \
-        python-dev \
-        python-numpy \
         python3-dev \
         python3-numpy \
-        python-pip \
         python3-pip \
-        python-tk \
         python3-tk \
         libtbb2 \
         libtbb-dev \
@@ -54,15 +50,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         x11-xserver-utils \
         libmagick++-dev
 
-# CUDA 10.1
+# cudnn for CUDA 11.4
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        cuda-command-line-tools-10-1 \
-        cuda-cufft-10-1 \
-        cuda-curand-10-1 \
-        cuda-cusolver-10-1 \
-        cuda-cusparse-10-1 \
-        libcudnn7=7.6.5.32-1+cuda10.1 \
-        libcudnn7-dev=7.6.5.32-1+cuda10.1
+        libcudnn8=8.2.2.26-1+cuda11.4 \
+        libcudnn8-dev=8.2.2.26-1+cuda11.4
 
 ENV LD_LIBRARY_PATH /usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
 
@@ -78,7 +69,7 @@ RUN apt-get update && apt-get install -y tzdata
 RUN apt-get install -y --no-install-recommends libpulse-dev pulseaudio-utils
 COPY pulseaudio-client.conf /etc/pulse/client.conf
 
-# GStreamer 1.16
+# GStreamer
 RUN apt-get update && apt-get install -y \
     gtk-doc-tools libglib2.0-dev bison flex gettext graphviz yasm \
     liborc-0.4-0 liborc-0.4-dev libvorbis-dev libcdparanoia-dev \
@@ -93,31 +84,23 @@ RUN apt-get update && apt-get install -y \
     libasound2-dev libavcodec-dev libavformat-dev libswscale-dev \
     libwebrtc-audio-processing-dev \
     libsrtp2-dev
+RUN apt-get update && apt-get install -y \
+    libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+    gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
+    gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \
+    gstreamer1.0-libav libgstrtspserver-1.0-dev
 
 RUN apt-get upgrade -y && apt-get autoremove
 
-COPY nvidia-video/include/* /usr/local/cuda/include/
-
-RUN mkdir /opt/src
-WORKDIR /opt/src
-RUN git clone -b 0.1.16 --single-branch https://gitlab.freedesktop.org/libnice/libnice.git
-RUN git clone -b master --single-branch https://github.com/sctplab/usrsctp.git
-RUN git clone -b 1.16 --single-branch https://gitlab.freedesktop.org/gstreamer/gst-libav.git
-RUN git clone -b 1.16 --single-branch https://gitlab.freedesktop.org/gstreamer/gstreamer.git
-RUN git clone -b 1.16 --single-branch https://gitlab.freedesktop.org/gstreamer/gst-plugins-base.git
-RUN git clone -b 1.16 --single-branch https://gitlab.freedesktop.org/gstreamer/gst-plugins-good.git
-RUN git clone -b 1.16 --single-branch https://gitlab.freedesktop.org/gstreamer/gst-plugins-bad.git
-RUN git clone -b 1.16 --single-branch https://gitlab.freedesktop.org/gstreamer/gst-plugins-ugly.git
-COPY build_gstreamer.sh build_gstreamer.sh
-RUN chmod +x build_gstreamer.sh
-RUN ./build_gstreamer.sh
-
 # LibTorch TORCH_VERSION
 WORKDIR /opt
-RUN wget -O libtorch_${TORCH_VERSION}.zip https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-${TORCH_VERSION}.zip && \
+RUN wget -O libtorch_${TORCH_VERSION}.zip https://download.pytorch.org/libtorch/cu111/libtorch-cxx11-abi-shared-with-deps-${TORCH_VERSION}%2Bcu111.zip && \
     unzip libtorch_${TORCH_VERSION}.zip && \
     rm libtorch_${TORCH_VERSION}.zip
 ENV LIBTORCH /opt/libtorch
+
+# Fix missing libnvrtc-builtins.so.11.1
+RUN ln -s /usr/local/cuda/targets/x86_64-linux/lib/libnvrtc-builtins.so.11.4 /usr/local/cuda/targets/x86_64-linux/lib/libnvrtc-builtins.so.11.1
 
 COPY bashrc /etc/bash.bashrc
 RUN chmod a+rwx /etc/bash.bashrc
@@ -147,7 +130,7 @@ WORKDIR $HOME
 # Latest stable Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y
 ENV PATH=$HOME/.cargo/bin:$PATH
-RUN rustup toolchain install 1.46.0
+RUN rustup toolchain install 1.55.0
 RUN rustup component add rls rust-analysis rust-src rustfmt clippy
 RUN cargo install fd-find ripgrep
 

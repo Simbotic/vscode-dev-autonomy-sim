@@ -12,4 +12,5 @@ docker run --rm -ti \
     -v /tmp/pulseaudio.socket:/tmp/pulseaudio.socket \
     -e SSH_AUTH_SOCK=/ssh-agent \
     -v $SSH_AUTH_SOCK:/ssh-agent \
+    -v "$(pwd)":/sim \
     simbotic-container-base
